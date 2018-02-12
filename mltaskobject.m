@@ -569,6 +569,15 @@ classdef mltaskobject < matlab.mixin.Copyable
                         obj.MoreInfo{m}.Filename = '';
                         obj.MoreInfo{m}.Channel = a{2};
                         if isempty(MLConfig.DAQ.TTL{a{2}}) && ~TrialRecord.SimulationMode, error('''TTL %d'' is not assigned',a{2}); end
+                    case 'ctx'
+                        obj.ID(m) = a{2}; %object ID is the context value
+                        obj.Modality(m) = 6; %VR Context
+                      
+                    case 'gol'
+                        obj.ID(m) = a{2}; %object ID is the context value
+                        obj.Modality(m) = 7; %VR Goal
+                        obj.MoreInfo{m}.Color = a{3};
+                        obj.MoreInfo{m}.Value = a{2};
                 end
             end
             obj.ScreenPosition = get_ScreenPosition(obj,obj.Position);
