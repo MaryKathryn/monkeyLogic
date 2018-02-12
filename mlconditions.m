@@ -1,3 +1,16 @@
+%%=========================================================================
+% Change log JMT LAB ======================================================
+%==========================================================================
+% December 1 2017: GD
+%   Added implementation of the new UE task objects:
+%       ctx(#): context for the walls:
+%               # == context number: {1,2,3,...,n}
+%       gol(#,C): goals for the task:
+%               # == goal ID/value: {1,2,3,...,n}
+%               C == goal color, single char: {Red; ,Green; Blue; Cyan; Purple; Yellow; Orange; blacK, White}
+%==========================================================================
+%==========================================================================
+%==========================================================================
 classdef mlconditions < handle
     properties (SetAccess = protected)
         Conditions
@@ -186,6 +199,16 @@ classdef mlconditions < handle
                             if 2<length(tokens{1}), tokens{1}(3:4) = str2num(obj,tokens{1}(3:4)); end
                             b = sprintf('GEN: %s',lower(n));
                         end
+                        %==================================================
+                        %Added by GD; Dec 1 2017 to allow usage of VR
+                        %specific conditions
+                    case 'ctx'  % ctx(#)
+                        tokens = regexp(str{m},'^([a-zA-Z]{3}) *\( *(\d+) *\)','tokens');
+                        if ~isempty(tokens), tokens{1}(2) = str2num(obj,tokens{1}(2)); b = sprintf('CTX: #%d',tokens{1}{2}); end
+                    case 'gol' % gol(#,C);
+                        tokens = regexp(str{m},'^([a-zA-Z]{3}) *\( *(\d+) *, *([A-Z]+) *\)','tokens');
+                        if ~isempty(tokens), tokens{1}(2) = str2num(obj,tokens{1}(2)); b = sprintf('goal: #%d, %s',tokens{1}{2}, tokens{1}{3}); end
+                        %==================================================
                     otherwise, error('Unknown object type, %s',str{m});
                 end
                 if isempty(tokens), error('Can''t parse out ''%s''',str{m}); end
