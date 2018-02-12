@@ -3,6 +3,16 @@ function varargout = trialholder(MLConfig,TrialRecord,TaskObject,TrialData)
 %
 %   Sep 7, 2017     Written by Jaewon Hwang (jaewon.hwang@nih.gov, jaewon.hwang@hotmail.com)
 
+%%=========================================================================
+% Change log JMT LAB ======================================================
+%==========================================================================
+% December 4 2017: GD
+%   Added implementation of the TCP object 
+
+%==========================================================================
+%==========================================================================
+%==========================================================================
+
 %% initialization
 global ML_global_timer ML_global_timer_offset ML_prev_eye_position ML_trialtime_offset ML_Clock %#ok<NUSED>
 if isempty(ML_global_timer), ML_global_timer = tic; end
@@ -11,6 +21,10 @@ varargout{1} = [];
 DAQ = MLConfig.DAQ;
 DAQ.simulated_input(-1);
 Screen = MLConfig.Screen;
+%% Added TCP Object ========================================================
+TCP = MLConfig.TCP;
+%==========================================================================
+
 SIMULATION_MODE = TrialRecord.SimulationMode;
 if SIMULATION_MODE, DAQ.add_mouse(); DAQ.create_simulated_output(); end
 
@@ -34,6 +48,10 @@ ML_Modality = TaskObject.Modality;
 ML_Visual = 1==ML_Modality | 2==ML_Modality;
 ML_Movie = 2==ML_Modality;
 ML_Sound = 3==ML_Modality;
+%Added UE objects =========================================================
+ML_Ctx = 6==ML_Modality;
+ML_Gol = 7==ML_Modality;
+%==========================================================================
 
 ML_IO_Channel = zeros(1,ML_nObject);
 for ML_=find(4==ML_Modality|5==ML_Modality), ML_IO_Channel(ML_) = TaskObject(ML_).MoreInfo.Channel; end
@@ -51,6 +69,10 @@ param_.PhotoDiodeStatus = false;
 param_.trialtime = @trialtime;
 param_.goodmonkey = @goodmonkey;
 param_.dashboard = @dashboard;
+%Added TCP ================================================================
+param_.TCP = TCP;
+%==========================================================================
+
 
 % prepare the screen indicators
 if 1 < MLConfig.PhotoDiodeTrigger, mglactivategraphic([Screen.PhotodiodeWhite Screen.PhotodiodeBlack],[param_.PhotoDiodeStatus ~param_.PhotoDiodeStatus]); end
@@ -62,6 +84,9 @@ if SIMULATION_MODE || DAQ.eye_present, eye_ = EyeTracker(MLConfig,TaskObject,Eye
 if SIMULATION_MODE || DAQ.joystick_present, joy_ = JoyTracker(MLConfig,TaskObject,JoyCal,SIMULATION_MODE); ML_Tracker.add(joy_); end
 if SIMULATION_MODE || DAQ.mouse_present, touch_ = TouchTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE); ML_Tracker.add(touch_); end
 if SIMULATION_MODE || DAQ.button_present, button_ = ButtonTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE); ML_Tracker.add(button_); end
+%Added TCP Tracker to handle communication
+if SIMULATION_MODE || TCP.TCP_Status, tcp_ = TcpTracker(MLConfig, TaskObject); ML_Tracker.add(tcp_); end
+
 null_ = NullTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE);
 
     %% function create_scene
@@ -80,12 +105,16 @@ null_ = NullTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE);
             end
         end
 
+	%only for first trial!! 
         if TrialRecord.CurrentTrialNumber < 2
-            param_.SceneStartTime = trialtime();
-            param_.SceneStartFrame = param_.FrameNum;
+            param_.SceneStartTime = []; %test because this gets overwritten in run_scene            param_.SceneStartTime = trialtime();
+            param_.SceneStartFrame = []; %                     param_.SceneStartFrame = param_.FrameNum;
             ML_Tracker.init(param_);
             adapter.init(param_);
             DAQ.peekfront();
+	    %Added TCP acquisition
+            TCP.GetState();
+            %=====================
             ML_Tracker.acquire(param_);
             adapter.analyze(param_);
             adapter.draw(param_);
@@ -128,6 +157,9 @@ null_ = NullTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE);
         ML_Tracker.init(param_);
         scene.Adapter.init(param_);
         DAQ.peekfront();
+	%Added TCP acquisition
+        TCP.GetState();
+        %=====================
         ML_Tracker.acquire(param_);
         continue_ = scene.Adapter.analyze(param_);
         scene.Adapter.draw(param_);
@@ -140,6 +172,9 @@ null_ = NullTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE);
         while continue_
             ml_drawingstart = trialtime();
             DAQ.peekfront();
+	    %Added TCP acquisition
+            TCP.GetState();
+            %=====================
             ML_Tracker.acquire(param_);
             continue_ = scene.Adapter.analyze(param_);
             scene.Adapter.draw(param_);
@@ -602,7 +637,25 @@ null_ = NullTracker(MLConfig,TaskObject,EyeCal,SIMULATION_MODE);
 
         % update EyeTransform
         if any(param_.EyeOffset), EyeCal.translate(param_.EyeOffset); end
-        
+	
+        %Added section for Unreal Data ====================================
+        %Added to parse all the acquired UE data into arrays ==============
+        getPythonBuffers(TCP);
+        %==================================================================
+        % Trial data
+        TrialData.UEData = struct('UE_Position',[],'UE_Rotation',[],'UE_Time',[],'UE_State',[],'UE_QueryTime',[], 'P_SampleTime',[],...
+        'P_Error', [], 'P_ErrorTime', []);
+                 
+        TrialData.UEData.UE_Position = TCP.UE_Position;
+        TrialData.UEData.UE_Rotation = TCP.UE_Rotation;
+        TrialData.UEData.UE_Time = TCP.UE_Time;
+        TrialData.UEData.UE_State = TCP.UE_State;
+        TrialData.UEData.UE_QueryTime = TCP.UE_QueryTime;
+        TrialData.UEData.P_SampleTime = TCP.P_SampleTime;
+        TrialData.UEData.P_Error = TCP.P_Error;
+        TrialData.UEData.P_ErrorTime = TCP.P_ErrorTime;
+        %==================================================================
+	
         [TrialData.BehavioralCodes.CodeTimes,TrialData.BehavioralCodes.CodeNumbers] = mdqmex(98);
         TrialData.ReactionTime = rt;
         TrialData.ObjectStatusRecord.SceneParam = ML_ObjectStatusRecord.SceneParam(1:ML_SceneCount);
@@ -641,6 +694,7 @@ if MLConfig.NonStopRecording
         flushmarker(DAQ);
         ML_trialtime_offset = toc(ML_global_timer);
         ML_Clock = clock;
+	
         flushdata(DAQ);
         ML_global_timer_offset = ML_trialtime_offset;
     end
@@ -655,6 +709,11 @@ else
 end
 TrialData.AbsoluteTrialStartTime = (ML_trialtime_offset - ML_global_timer_offset) * 1000;
 DAQ.init_timer(ML_global_timer,ML_trialtime_offset);
+%initialize trial timer on TCP Python object (i.e. sets the time to 0)
+%which then outputs the time stamps in ms from trial start (i.e. each
+%trial starts at 0); 
+TCP.init_timer();
+
 mglsetscreencolor(2,[0.1333 0.3333 0.5490]);
 
 eventmarker(9);
