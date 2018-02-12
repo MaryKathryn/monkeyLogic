@@ -1,0 +1,377 @@
+# Changes in NIMH MonkeyLogic, Feb 17, 2017
+
+  + Version up due to the daqtoolbox update
+
+  
+# Changes in NIMH MonkeyLogic, Feb 10, 2017
+
+  + All time records are now stored as floating-point numbers in BHV.
+
+  
+# Changes in NIMH MonkeyLogic, Feb 6, 2017
+
+  ~ Fixed that the transparent color key was hard-coded as black.
+   (Thanks for neo3dot1415 from the ML forum)
+  
+  ~ VC++ 2013 Redistributable is now correctly detected in the 32-bit MATLAB.
+  
+
+# Changes in NIMH MonkeyLogic, Jan 30, 2017
+
+  + Improved detection of Visual Studio Redistributable and DirectX.
+  
+  + embedtimingfile.m minifies runtime files better.
+
+  + Faster response when the control screen is dragged during calibration
+
+  
+# Changes in NIMH MonkeyLogic, Jan 5, 2017
+
+  + Now both manual and automatic eye drift corrections work, whether the eye
+   calibration is used or not. For manual correction, press the 'c' key during
+   the trial and then the eye position at that moment becomes the new origin,
+   (0,0). If 'c' is pressed mistakenly, the change can be reverted by 'u'. (You
+   can undo multiple times.) The automatic correction takes into account all
+   fixation points where eyejoytrack() with 'holdfix' was finished succesfully
+   and now uses a much simpler algorithm that requires the adjustment magnitude
+   parameter only.
+   
+  + MATLAB UI controls in the control screen now display the information of
+   the current trial, not the previous trial. (Thanks to Joshua Aman)
+  
+  ~ Frame skipping during the joystick cursor update is not warned anymore.
+   (Thanks to kms from the ML forum)
+   
+  ~ The reward time records kept during initialization are now being deleted
+   correctly before the first trial begins.
+
+   
+# Changes in NIMH MonkeyLogic, Dec 23, 2016
+
+  + Now the STM object takes the third argument in the condition file that
+   indicates whether it needs to be triggered multiple time in one trial. If
+   the argument is 0 or not given, the STM object is disabled after one firing
+   as in the old ML with MATLAB's DAQ toolbox. This change is for making it
+   possible to trigger Reward via AnalogOutput after Stimulation is done.
+   
+  + embedtimingfile.m is rewritten to add the customizable reward function to
+   the runtime. And it now removes trailing single line comments as well.
+   
+
+# Changes in NIMH MonkeyLogic, Dec 21, 2016
+
+  ~ A problem that crashes MATLAB R2014b-R2015aSP1 in a certain monitor
+   configuration under the 100% DPI mode is fixed. It was because my code that
+   worked around a bug in those MATLAB versions was not perfect and detected
+   the screen coordinates incorrectly. (Thanks to Xiaomin Yue)
+  
+  ~ Now the output pulse of eventmarker() is enforced to be at lease 125 us.
+   Otherwise, event codes may not be registered in a fast system due to the too
+   short pulse length. (Thanks to Sebastien Tremblay)
+   
+  ~ Now Reward can be triggered with the STM object via AnalogOutput, if
+   toggleobject() is called before goodmonkey(). This is the same behavior as
+   the old ML does. (Thanks to Sebastien Tremblay)
+
+   
+# Changes in NIMH MonkeyLogic, Dec 16, 2016
+  
+  + Now BHV.AbsoluteTrialStartTime records the elapsed time from the task start
+   in milliseconds. Previously this field was filled with the system clock
+   reading, but the system clock is vulnerable to many unauthorized changes and
+   therefore the name, "absolute time", was misleading. The system clock is
+   stored in BHV.TrialDateTime instead.
+   
+  + Now user-defined functions in the timing file can be inserted into runtimes
+   properly. Those functions must be defined at the end of a timing file and
+   terminated with 'end'.
+   
+  + Now NIMH ML does not copy CondSelectFunction, BlockSelectFunction,
+   BlockChangeFunction, UserPlotFunction, etc. to the RuntimeDirectory and
+   reads directly from the ExperimentDirectory, where the timing and condition
+   files are placed.
+  
+  + Unnecessary initialization sequences were removed for the fast startup.
+  
+
+# Changes in NIMH MonkeyLogic, Dec 15, 2016
+
+ + Support for customizing the reward function, goodmonkey(). See
+  reward_function.m. Also multiple digital lines can be assigned to "Reward"
+  now.
+  
+ ~ A problem that stops the task when STM objects are not used during the trial
+  is fixed. (Thanks to Joshua Aman)
+
+
+# Changes in NIMH MonkeyLogic, Dec 12, 2016
+
+ + Now ML can run with one monitor for the testing purpose. In that case, the
+  subject screen is replaced with a 1024x768 window.
+  
+ + The 2-D Spatial Transformation tool supports keyboard manipulation (N key,
+  P key). (Suggestion from Xiaomin Yue and Sebastien Ballesta)
+  
+ ~ Some code in the calibration tools was re-written for old MATLAB versions.
+  (Thanks to Wing from the ML forum)
+ 
+
+# Changes in NIMH MonkeyLogic, Dec 1, 2016
+
+ + The subject screen is now created as a full-screen window. This helps ML
+  keep up with the refresh rate of the screen without disabling Desktop Window
+  Manager or even when the control screen runs at a different refresh rate.
+  (Thanks to Sebastien Tremblay)
+ 
+ ~ A sound can be added from a row vector now, which fixes an error occuring
+  when a SND object is created from a sine wave. (Thanks to Soo Hyun Park)
+
+ 
+ # Changes in NIMH MonkeyLogic, Nov 9, 2016
+
+ ~ The problem that MonkeyLogic Latency Test cannot be initiated when the
+  selected calibration is not complete is fixed.
+ 
+ ~ The error that occurs when Online Smoothing is selected is fixed.
+ 
+
+# Changes in NIMH MonkeyLogic, Nov 7, 2016
+
+ + The subject screen is not re-drawn unless there is any change. This improves
+  performance when there is no movie presented.
+   
+ ~ A hole in the thread safety that can crash MATLAB during movie presentation
+   is fixed. This fix affects all previous versions, so everyone should update.
+   
+ ~ The benchmark test shows the results in the same way as in the old ML, for
+   easier comparison.
+
+   
+# Changes in NIMH MonkeyLogic, Nov 3, 2016
+
+ ~ The problem that the new commands make an error when there is no movie
+   stimulus in the condition is fixed.
+
+   
+# Changes in NIMH MonkeyLogic, Nov 1, 2016
+
+ + Added a new command, get_movie_duration(object_num, time_in_msec), which
+   returns the legnth of the movie in milliseconds.
+   
+ ~ The problem that sometimes MATLAB stalls when movie objects are removed
+   is fixed.
+
+   
+# Changes in NIMH MonkeyLogic, Oct 28, 2016
+
+ + Added a new command, rewind_movie(object_num, time_in_msec), which moves the
+   current position of the movie to the given time.
+
+   
+# Changes in NIMH MonkeyLogic, Oct 24, 2016
+
+ ~ Some bugs in UI are fixed.
+
+ 
+# Changes in NIMH MonkeyLogic, Oct 21, 2016
+
+ + The maximum numbers of buttons and general inputs that can be connected are
+   increased to 10 and 16, respectively.
+ 
+ + USB joysticks are supported. When both analog joystick and USB type are
+   available, the USB type takes precedence.
+   
+ + The Origin-Gain calibration tool allows negative gains to flip the polarity
+   of input signals. 
+
+
+# Changes in NIMH MonkeyLogic, Oct 19, 2016
+
+ + A message is displayed on the control screen when escaping the trial loop is
+   requested either by typing the ESC key or calling escape_screen().
+ 
+ ~ The calibration tools are now working with old MATLAB versions.
+
+   
+# Changes in NIMH MonkeyLogic, Oct 17, 2016
+
+ + Vertical syncing during movie playback is improved.
+ 
+ + The eye & joy calibration tool is improved. Fixation cues can be triggered
+   with mouse clicks. Also a new calibration function is added.
+   
+ + Online analoginput smoothing is supported.
+
+ + During the simulation mode, each button can be simulated individually with
+   keys 1-0 and is on only while the key is pressed.
+
+
+# Changes in NIMH MonkeyLogic, Aug 10, 2016
+
+ ~ Fixed a "missing field" error that occurs when setting DAQ from scratch
+  (Thanks to Helen Schwerdt)
+  
+ ~ Fixed a bug that crashes MATLAB when bitmaps are added
+  (Thanks to Yang Zhou and David Freedman)
+ 
+
+# Changes in NIMH MonkeyLogic, Aug 2, 2016
+
+ + While running trials, the computer does not go to sleep or turn off the
+   screens. 
+
+ ~ Audio initialization is skipped, when there is no available endpoint device.
+ 
+ ~ Fixed an instability issue during movie playing.
+
+ 
+# Changes in NIMH MonkeyLogic, Jul 29, 2016
+
+ + The properties such as 'MovieStartFrame', 'MovieStep', 'StartPosition' and
+   'PositionStep' are supported in toggleobject() again.
+   (However, 'MovieSrartFrame' and 'MovieStep' make playback speed dependent on
+   the refresh rate and therefore should be avoided.  Plus, the entire movie
+   should be small enough so that all the frames can be loaded in the memory.
+   The current limit is 16 MB, but it can be changed in mgladdmovie.m)
+   
+ + Non-streaming movies can use set_frame_order() as well.
+ 
+ ~ The bug that stops ML when eyejoytrack() is called before toggleobject() is
+   fixed. (Thanks to Yang Zhou and GuilHem Ibos)
+   
+ ~ The bug that the editable variable window becomes unclickable is fixed.
+   (Thanks to Yang Zhou and GuilHem Ibos)
+ 
+ ~ The problem that ML requires eye input during SIMULATION MODE is fixed.
+   (Thanks to Helen Schwerdt)
+ 
+ ~ Conversions of figure coordinates between MATLAB and Windows is improved.
+   (Thanks to Ben Basile)
+ 
+
+# Changes in NIMH MonkeyLogic, Jun 29, 2016
+ 
+ + support for alpha blending
+   Now the unfilled pixels of fix, crc and sqr are transparent to the
+   background in all MATLAB GUIs and task screens.  This is supported in pic as
+   well, if your image files have alpha channel data that MATLAB can read. 
+
+ + support for mouse/touchscreen input
+   Now mouse/touchscreen input is available and you can choose on the main GUI
+   whether to save mouse trace/click data in the BHV file.  No DAQ setting is
+   required to activate mouse/touchscreen.
+   This function is forward compatible with previous versions of the
+   touchscreen MonkeyLogic, so you can run and read the timing and BHV files
+   written from previous MonkeyLogic, but the data file generated by NIMH
+   MonkeyLogic is not readable in the old versions (not backward compatible).
+   
+ + In the simulation mode, you can use the mouse cursor moves and clicks to
+   emulate gaze position and screen touch.  Now the joystick cursor is
+   controlled by the cursor keys, instead of num arrows, and the buttons are
+   toggled by the space key, not by the combination of the space and backspace.
+   
+ + Now the stm objects can be triggered multiple times, not just once.
+ 
+ + You can choose the shape, color and size of the fixation point and the
+   joystick cursor on the main menu.
+ 
+ ~ Although the online manual says the size of the crc object is specified in
+   radius in the condition file, the number is internally considered a diameter.
+   This is fixed, but will increase the size of your crc objects.  The sqr
+   objects are not affected.
+ 
+ ~ To support mouse/touchscreen input and multiple stm triggering, NIMH
+   DAQ Toolbox (included) is required now.  NIMH MonkeyLogic no longer works
+   with MATLAB DAQ Toolbox.
+  
+ - The A-I duplication button is removed from the main GUI and now analog
+   input is sampled from only one NI board, even if there are two.  NIMH DAQ
+   Toolbox does not need two boards to support near-realtime acquisition.
+   See daqtoolbox\doc\NIMH DAQ Toolbox.pptx for the details.
+ 
+ - MLHELPER.exe, prttoolbox and all other keyboard and mouse hooks are removed.
+   Now you can type and click while MonkeyLogic is running.  To keep timing
+   accuracy, however, close other programs and don't do unnecessary
+   keyboard/mouse manipulation.
+   
+
+# Changes in NIMH MonkeyLogic, Jun 6, 2016
+
+ + Supports low-latency audio output based on XAudio2.
+ 
+ + Supports movie streaming. There is no limit in the duration of movies that
+   can be played.
+
+ 
+# Changes in NIMH MonkeyLogic, May 19, 2016
+
+ + new graphic library (MonkeyLogic Graphic Library, MGL)
+ 
+  > Written with 3D APIs
+
+  > Supports any screen resolution and any refresh rate, including the portrait
+    orientation
+
+  > No more multiple flickerings before starting a task
+
+  > What you see is what your monkey sees (WYSIWYMS).  The control screen
+    displays the same scene as the subject screen.
+
+ + changes from the previous version
+ 
+  > If you are using the photodiode trigger, check if its size becomes smaller
+    in NIMH Monkeylogic.  The old graphic library required the size of bitmaps
+	to be a multiple of 4, so the previous MonkeyLogic made the trigger size
+	bigger than the specified size while padding additional pixels around.
+	Since MGL does not have such a requirement and there is no more padding,
+	the trigger may become smaller under the same size setting.
+  
+  > MLHELPER.exe, prttoolbox and all other keyboard and mouse hooks have been
+    obstacles for MonkeyLogic to behave as a normal Windows application.  They
+    are all temporally blocked in this release and will be removed in the
+    future.  Now it is your duty to close all other applications before
+    running MonkeyLogic, not to slow it down.
+
+  > This version includes NIMH DAQ Toolbox and uses it by default, although it
+    still works with MATLAB DAQ Toolbox.  MATLAB DAQ Toolbox may not be used
+    with NIMH MonkeyLogic in the future, because it does not update data
+    samples fast enough and does not support some devices like mice or USB
+    joysticks. 
+
+	 
+# First release of NIMH MonkeyLogic, Apr 7, 2016
+
+ + combined the following three previous distributions.
+
+  > The "Oct 2014" version from the official website
+   (which is not available any more as of 3/22/2016)
+
+  > AsaadLab's 2/16/2016 version
+   (https://bitbucket.org/asaadneurolab/monkeylogic-asaadlab)
+
+  > FreedmanLab's 5/9/2014 version
+   (https://github.com/Dfreedmanlab/MonkeyLogic_stable)
+   
+ + fixed known problems
+
+  > Vijay's patch for slow graphic updating that occurs in R2014b and later
+   (http://forums.monkeylogic.org/post/long-cycle-latencies-7783430?pid=1290048064)
+   This patch helps, but it works by decreasing the quality of the control
+   screen graphics and yet the performance is still unsatisfactory.
+
+  > Jaewon's patch for Behavioral Codes not being assigned correctly.
+    (http://forums.monkeylogic.org/post/errors-in-the-current-ml-package-7752047?pid=1290922224)
+   This patch allows you to add Behavioral Codes across multiple digital ports.
+
+  > No more funky business with the MATLAB pref setting! Now RunTimeDirectory
+    is determined based on the location of currently running MonkeyLogic, when
+	there are multiple copies installed.
+
+  > Video writing in Behavior Summary is changed to make video compression
+    actually work.
+
+  > Graphic properties deprecated in HG2 graphics are updated. 
+
+  > Now only one 'default_cfg.mat' is created in the base directory.
+
+  > lots of other minor fixes

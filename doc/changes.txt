@@ -1,0 +1,663 @@
+* Changes in NIMH MonkeyLogic 2 (Jan 29, 2018)
+
+ + New adapters, TextGraphic and CurveTracer, are added.
+
+ + A new example task, task\runtime v2\curve trace, is added.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jan 25, 2018)
+
+ - A memory leak that occurred when the SND objects were created from vectors,
+   not from files, is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jan 23, 2018)
+
+ - The data file recorded with SmoothPursuit is replayable now.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jan 19, 2018)
+
+ - A problem that EyeLink DLLs are not loaded when mlplayer is called before
+   monkeylogic is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jan 17, 2018)
+
+ + New adapters, FreeThenHold & SmoothPursuit, are added.
+
+ + A new example task, task\runtime v2\pursuit eye movement, is added.
+
+ - A problem in the eye auto drift correction of trialholder_v2 is fixed.
+
+ 
+* Changes in NIMH MonkeyLogic 2 (Jan 8, 2018)
+
+ - The problem that trialholder_v2 shows an error ("Index exceeds Matrix
+   dimensions. (mlaq.get.Button, Line 273)") when buttons are defined is fixed.
+   (Thanks to aboharbf from ML forum)
+
+ - An error that occurred when reading bitmap images with paletted colors is
+   fixed.
+
+ - A problem that movie playback stops when there is a missing frame in the
+   video is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jan 4, 2018)
+
+ + ML2 can record signals during inter-trial intervals now. A new checkbox
+   option to activate this feature is added on the main menu. Extra analog
+   samples acquired during ITI will be added to the beginning of the next
+   trial's data segment. Also all the events of the next trial will be timed
+   from the ITI start, as if the trial is delayed by the ITI. The AISampleRate
+   will be fixed to 1000 Hz, when this option is turned on.
+
+ + A new function, mlconcatenate, is added to read analog data as one long
+   seamless array across all trials. This function also converts the timestamps
+   of all events to absolute trial time measured from the task start. To read
+   data files with mlconcatenate, the sample rate of the data must be 1000 Hz. 
+   ML2 uses the CPU clock to time events, while analog signals are digitized
+   based on the NI board's clock. Typically there is a few nanosecond
+   difference between those clocks, which results in a missing/extra sample
+   every few minutes. To avoid this temporal error being accumulated,
+   mlconcatenate takes the CPU clock as a base and fills the missing NI samples
+   with the ones immediately preceding or discards the extra NI samples. If you
+   are using a signal processing system, like Plexon or TDT, it is recommended
+   to feed all your signals to the system and let them recorded there so that
+   all samples are digitized based on the same clock.
+
+ + NIMH daqtoolbox provides a couple of new methods to improve timing accuracy.
+   For example, flushdata() is a function that removes previously collected
+   samples. ML2 uses this function to mark the location of the very first
+   recorded sample, by calling it when the trial clock starts. When multiple
+   adapters are used, however, there is an inevitable time gap between flushing
+   the first adapter and the last one, which can be longer than 1 ms if there
+   are too many samples to delete or just because MATLAB is too slow. To reduce
+   this gap, I added flushmarker(), a function that quickly scans adapters and
+   just marks the positions to flush without removing samples yet. Since the
+   function does not perform the time-consuming part itself, it can return
+   within a millisecond even when it is called for the first time. Then, actual
+   sample removal can be performed later by flushdata(), when the time accuracy
+   is not critical.
+   
+   % old way
+   start(DAQ);
+   flushdata(DAQ);
+   timestamp = toc(global_timer); % You want this timestamp to be close to the
+                                  % moment of flushing the first adapter in DAQ
+   % new way
+   start(DAQ);
+   flushmarker(DAQ);              % flushmarker() is faster so the gap with the
+   timestamp = toc(global_timer); % timestamp is much shorter.
+   flushdata(DAQ);                % Old samples collected before flushmarker()
+                                  % are flushed here.
+
+ - The problem that the calibration tools show a warning message at the space
+   key press in the Dec 14, 2017 version is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Dec 14, 2017)
+
+ + Now ML2 supports Ethernet links for Arrington ViewPoint Eye Tracker & SR
+   Research EyeLink series. To enable the Ethernet link, go to the "Non-DAQ
+   Devices Settings" on the ML menu and choose one in the "TCP/IP Eye Tracker".
+   Non-DAQ devices have priority over DAQ devices, when they both are set in
+   the Input/Output menu.
+
+ + Touchscreens that use Windows's native driver can be supported now. To
+   enable this feature, go to the "Non-DAQ Devices Settings" on the ML menu and
+   check on "Touchscreen". It will activate a side menu, "Run Message Loop".
+   Then, check on that side menu, too. Although this will fix the previously
+   reported problem, you should not turn on this "Run Message Loop" option, if
+   your touchscreen works fine without it.
+
+ - The problem that SingleTarget's Success becomes empty when there is no input
+   data is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Dec 1, 2017)
+
+ - A typo in Line 70 of run_time.m that stopped the latency test & IO test is
+   fixed. (Thanks to aboharbf from ML forum)
+
+ + Functions that simulate Stimulation and TTL are included. They replace the
+   output channels/ports during the simulation mode, but do not send out actual
+   signals. May not work in all cases.
+
+
+* Changes in NIMH MonkeyLogic 2 (Nov 28, 2017)
+
+ + analogoutput of NIMH daqtoolbox is updated so that it can quickly stops and
+   retrigger output for closed loop stimulation. An example task is in the
+   "task\runtime v2\8 closed loop stimulation" directory.
+
+ - The problem that occurred when trying to use a rectangular fixation window
+   with eyejoytrack() is fixed. It was a side effect of the recent graphic
+   library update for the runtime v2. (Thanks to aboharbf from ML forum)
+
+
+* Changes in NIMH MonkeyLogic 2 (Nov 21, 2017)
+
+ + Now you can make ML2 send out notifications to your Slack apps. Obviously
+   this requires an internet connection to your ML2 computer and you need to
+   download the Slack app on your smartphone or desktop. See alert_funcion.m
+   for the instructions. If you want different notifications for different
+   tasks, make a copy of alert_function.m in your task directory and modify the
+   copy. Don't forget to turn on 'Alert' on the main menu.
+
+
+* Changes in NIMH MonkeyLogic 2 (Nov 20, 2017)
+
+ + All adapters are re-written to inherit from their superclasses.
+
+ + In the original ML, only numeric scalar variables can be editable, but, in
+   ML2, strings can be editable as well. Now ML2 can have 3 special types of
+   editable variables: -file, -dir and -color. If variables are declared as
+   editables with these keywords, users can use MATLAB's file dialog or color
+   pick-up dialog to set the variables.
+
+   editable('-file','parameter_file');
+   editable('-color',{'face_color','edge_color'});
+
+ + Now editable variables can be accessed from userloop via TrialRecord (read
+   only). For example, the editables defined in the timing file as shown above
+   can be read in the userloop like the following.
+
+   TrialRecord.Editable.parameter_file
+   TrialRecord.Editable.face_color
+   TrialRecord.Editable.edge_color
+
+
+* Changes in NIMH MonkeyLogic 2 (Nov 9, 2017)
+
+ + A problem that mlplayer sometimes crashes MATLAB when it is closed during a
+   playback is fixed.
+
+ + It is found that VC++ 2013 Redistributable (x64) - 12.0.40649 uses a
+   different uninstall signature. The new signature is added to ML, but, in
+   case that it changes again, users can choose to bypass the detection code.
+
+ + New adapters and task examples
+
+ - repmat(A,1,1,3) is not compatible with R2013a or earlier, so changed to
+   repmat(A,[1 1 3]). (Thanks to Xiaomin Yue)
+
+
+* Changes in NIMH MonkeyLogic 2 (Nov 2, 2017)
+
+ + An edit field for JuiceLine is added to all reward argument dialogs.
+
+ + During the reward polarity test, the number of triggered reward drops is
+   displayed along with JuiceLine and Duration. You can also stop the test in
+   the middle by pressing the ESC key. This is for those who use the test for
+   reward calibration.
+
+ + The JuiceLine of the manual reward ('R' key) during user tasks is determined
+   as given in the reward argument dialog of the main menu.
+
+
+* Changes in NIMH MonkeyLogic 2 (Oct 30, 2017)
+
+ + Now goodmonkey() can deliver rewards in the non-blocking mode. When the
+   'nonblocking' argument is non-zero (1 or 2), goodmonkey() returns the
+   control immediately and triggers rewards in the background process.
+   This non-blocking mode is for giving rewards while continuously updating
+   visual stimuli, for example, during a movie playback. Therefore, it is most
+   useful when you write tasks with the new trialholder_v2 and is not necessary
+   in a usual situation. If you use the non-blocking mode, make it sure that
+   the task continues long enough to finish all background reward delivery.
+   Otherwise, some reward events may be stampted after the trial end code (18).
+
+   goodmonkey(100, 'numreward',3, 'pausetime',300, 'nonblocking',1);
+
+   Here is the list of the arguments that goodmonkey() can take:
+
+   NumReward  : number of drops
+   PauseTime  : interval between drops, in milliseconds
+   TriggerVal : triggering voltage for analogoutput
+   JuiceLine  : reward channel to trigger, for digitalio only
+   EventMarker: behavioral code(s) to stamp for each drop
+   NonBlocking: 0 (blocking, by default)
+                1 (non-blocking, yield to other threads, less precise timing)
+                2 (non-blocking, do not yield, more precise timing)
+
+   JuiceLine, EventMarker and NonBlocking are not remembered by goodmonkey(),
+   unlike NumReward, PauseTime and TriggerVal, and need to be set every time
+   when goodmonkey() is called.
+
+
+* Changes in NIMH MonkeyLogic 2 (Oct 23, 2017)
+
+ - ML2 made an error while staring a task, if mlplayer was running already.
+   This error was patched in the previous version, but the patch was not perfect
+   and introduced another bug. Now all things work fine.
+
+ - A mistake made in the eye drift correction of the trialholder_v2 is fixed.
+   To use the eye drift correction in trialholder_v2, the WaitThenHold adapter
+   must be used.
+
+
+* Changes in NIMH MonkeyLogic 2 (Oct 20, 2017)
+
+ - The structure of the adapters (building blocks for creating scenes in
+   trialholder_v2) is straightened out for unified interface.
+
+
+* Changes in NIMH MonkeyLogic 2 (Oct 17, 2017)
+
+ + The control screen backround is supposed to be blue only when the trial is
+   running and gray otherwise. This works correctly now.
+
+ + A new trialholder function, bhv_code, allows you to add BehavioralCode
+   within the timing file.
+
+   bhv_code(code_number1, code_name1, code_number2, code_name2, ...);
+
+ - Fixed that mlplayer doesn't use the actual refresh rate and therefore
+   replays trials incorrectly under a certain condition.
+
+ - Minor changes & fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Oct 12, 2017)
+
+ + mlplayer can replay datafiles created with the new trialholder (v2).
+
+ + Better handling of skipped frames for long movies
+
+ - Minor changes & fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Sep 27, 2017)
+
+ - There was a mistake in sorting the screen device order, so the fix related
+   to the main menu position was not working perfectly. Now it is patched.
+
+ - get_movie_duration() was retuning the number in seconds. Now it returns the
+   length in milliseconds.
+
+
+* Changes in NIMH MonkeyLogic 2 (Sep 25, 2017)
+
+ + A new example task (shapes) that demonstrates how to draw arbitrary-shaped
+   stimuli is added.
+
+ - Minor fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Sep 22, 2017)
+
+ + A new trialholder (a.k.a. runtime) is added. This new trialholder provides a
+   way to detect complex behaviors and control dynamic visual stimuli. See the
+   example tasks included (dms with new runtime, random dot motion and timer
+   demo). Detailed documentation will be added later.
+
+
+* Changes in NIMH MonkeyLogic 2 (Sep 20, 2017)
+
+ - The problem that the mlplayer screen doesn't come back when "Export to AVI"
+   is cancelled is fixed.
+
+ - In previous versions, movies are rewound automatically when they are toggled
+   off so that they can be reused in the same trial. This introduces a
+   unnecessary delay when the movie is big. Now users have to explicitly rewind
+   them with rewind_movie().
+
+ - When a new configuration profile is created for a new subject in previous
+   versions, the menu settings are copied from the last subject's profile, but
+   the editable variables of the new profile are reset to the values defined in
+   the timing file. Now the editable variables are also copied from the last
+   subject's profile.
+
+ - Minor fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Aug 25, 2017)
+
+ + reward_function.m supports multi-channel reward devices via multiple digital
+   lines by default. To trigger a different reward channel, use the 'juiceline'
+   option as below.
+
+   goodmonkey(100,'juiceline',2);      % trigger Reward 2 for 100 msec
+   goodmonkey(100,'juiceline',[1 3]);  % trigger Reward 1 & 3 simultaneously
+
+ + Now gray-scale bitmap files can be used. (Thanks to Xiaomin Yue)
+
+ + Now the ML main menu shows up on the screen where the command window is
+   located (Thanks to Sebastien Ballesta)
+
+ + Quotation marks (double or single) added to each field in the conditions
+   file are processed properly now. (Thanks to hoptman from ML forum)
+
+ - Minor fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Jul 24, 2017)
+
+ - The problem of the space origin floating when the slip correction is made by
+   the 'C' key during the 2-D spatial transformation calibration is fixed.
+   (Thanks to Carlos Ponce)
+
+
+* Changes in NIMH MonkeyLogic 2 (Jul 19, 2017)
+
+ + The pause menu items are mouse-clickable now.
+
+ + A button to reset eye/joystick calibration is added to the main menu.
+
+ + When the calibration tools are closed without saving the changes, a question
+   dialog will be pop up to confirm.
+
+ - A testing code accidentally inserted in the sound module is removed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jul 17, 2017)
+
+ + Image Processing Toolbox is not requied any more, even when the 2-D Spatial
+   Transformation is used for the calibration.
+
+ - The origin-gain calibration supports the rotation manipulation, to
+   compensate the distorsion in the input signal due to, for example, the
+   tilted eye camera. 
+
+ - All calibration methods, including 'Raw Signal', allow the temporary
+   rotation of the space with the following command. This change is reset in
+   the next trial and, for the origin-gain calibration, its effect is
+   additional to the rotation change during the calibration.
+
+   EyeCal.rotate(degree);
+   JoyCal.rotate(degree);
+
+
+* Changes in NIMH MonkeyLogic 2 (Jul 12, 2017)
+
+ - The imresize() function used in the recent releases is replaced with
+   mglimresize(), which is not dependent on Image Processing Toolbox.
+
+ - NIMH daqtoolbox prints out more detailed information for NI-DAQmx errors.
+
+ - The default input range of analoginput is changed to [-10 10] for better
+   compatibility with MATLAB DAQ.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jul 7, 2017)
+
+ + The main menu GUI can be collapsed so that ML2 can be run on a smaller
+   screen (1024 x 768).
+
+ - Minor fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Jul 5, 2017)
+
+ + The I/O test panel is added. This panel is accessible from the main menu and
+   users can test analoginput (eye, joystick, touch, etc.), stimulation and TTL
+   with it.
+
+ - Minor fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (Jun 30, 2017)
+
+ - When stimuli are pre-loaded with the userloop and not turned off by the end
+   of a trial, they can show up in the next trial. To prevent this, pre-loaded
+   stimuli are deactivated at the end of each trial.
+
+ - The problem that SND created from wav data, not from the file, does not play
+   is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jun 27, 2017)
+
+ + mlplayer can handle repositioning of visual objects, frame manipulation of
+   movies and background color changes. It is required to record data with this
+   version of ML (or later), to get those features replayed correctly.
+
+ - Movie-related codes are refactored. Decoding is twice faster now.
+
+
+* Changes in NIMH MonkeyLogic 2 (Jun 13, 2017)
+
+ + The trial replay tool, mlplayer, is added.
+
+ - The problem that the conditions are not refreshed when the block is switched
+   is fixed (Thanks to Sheena from the ML forum).
+
+
+* Changes in NIMH MonkeyLogic 2 (May 25, 2017)
+
+ + mlbhv2.m caches the positions of the variables in the file and improves the
+   reading speed after the first access.
+
+ - The problem that structure arrays are read backward from the data file
+  (bhv2, h5) is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (May 18, 2017)
+
+ + Support for individualized configurations and editable variables. When a
+   conditions file is selected, the very last saved configuration is loaded by
+   default. Then, the configuration for a particular subject can be chosen by
+   changing the subject name.
+
+ + When the data file with the same name exists already and the user chooses
+   overwriting, the old file is moved to Recycle Bin rather than deleted
+   directly. The question dialog is updated to show the choices and actions
+   more clearly.
+
+ + The following keyboard controls work in both origin-gain and 2-D spatial
+   transform calibration methods now.
+
+   r: manual reward
+   -: decrease reward duration by 10 ms
+   =: increase reward duration by 10 ms
+   c: eye slip correction
+   u: undo eye slip correction
+
+ + The eye offset at the time of the slip correction during trials (manual
+   correction by the 'c' key or auto drift correction) is recorded to the data
+   file.
+
+ - Many minor fixes
+
+
+* Changes in NIMH MonkeyLogic 2 (May 11, 2017)
+
+ + Now the behaviorsummary shows the figure drawn by the userplot function, if
+   the function is provided.
+
+ + Another reward mode is added to the 2-D spatial transform calibration, in
+   which the fixation cue moves to the next calibration point upon the space
+   key press.
+
+ - The gain range in the origin-gain calibration is increased from [-10 10]
+   to [-20 20].
+
+ - The index of the currently selected calibration target was not updated
+   appropriately in the 2-D spatial transform calibration, if a target was
+   chosen by a mouse click. As a result, when the target presentation was
+   resumed by the keyboard, the target adjacent to the previously selected one
+   was displayed, instead of the one adjacent to the current target. This
+   problem is fixed now.
+
+ - The problem that the reward function did not get custom reward variables
+   when it was tested from the main menu is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (May 8, 2017)
+
+ + STM and TTL can be triggered in the simulation mode now, if actual hardware
+   exists.
+
+ + Reward on & off times are recorded even when the Reward I/O is not assigned.
+
+ + As in the ML1, 'reward_dur' is defined as an editable variable by default
+   and its value can be increased/decreased by 10 with the '-' & '=' keys.
+
+ + If the DAQ boards indicated in the loaded configuration do not exist, the
+   configuration is not automatically saved when the run button is clicked.
+   This prevents the I/O mapping in the configuration file from being
+   overwritten when the task is temporarily tested in a different computer.
+
+
+* Changes in NIMH MonkeyLogic 2 (May 2, 2017)
+
+ + The reward count is displayed above the water drop icon now.
+
+ - The conditions file header items that contain spaces before and after them
+   are read correctly now. (Thanks to Ben Basile)
+
+ - The fixation target in the 2-D transformation calibration is turned off
+   when a reward is delivered with a space key press. (Thanks to Ben Basile and
+   crponce)
+
+ - Calibration points in the 2-D transformation calibration can be toggled off
+   even when they are not currently on the fixation points.
+
+
+* Changes in NIMH MonkeyLogic 2 (Apr 21, 2017)
+
+ + Now the length of the strobe pulses can be customized in the main menu,
+   according to the required specification of the recording system.
+
+ - Now eventcodes are marked in the behavioral data file, even though the
+   'Behavioral Codes' and 'Strobe bit' are not assigned in the main menu. The
+   reward-on and -off times of goodmonkey() still won't be recorded unless
+   'Reward' is assigned.
+
+ - A problem that ML couldn't parse out the pic object description when the
+   width and height were given as decimals. This happens when the conditions
+   file is generated with a script provided in the original ML.
+
+ - get_analog_data() is fixed to receive the name of the General Input signals
+   in the original ML's convention, like 'gen1'. (Thanks to Soohyun Park)
+
+ - Fixed an error in the DirectX 9 detection
+
+
+* Changes in NIMH MonkeyLogic 2 (Apr 12, 2017)
+
+ - An error that occurred during manual eye/joystick drift correction while
+   using 2-D Spatial Transformation is fixed. (Thanks to crponce from the ML
+   forum)
+
+ - The previous patch related to movie presentation introduced a new bug that
+   disabled the movie preview. It is fixed now.
+
+
+* Changes in NIMH MonkeyLogic 2 (Apr 10, 2017)
+
+ + Now the fixation threshold of eyejoytrack() can be specified as a rectangle
+   with a two-element vector. (Thanks to SeanC from the ML forum)
+
+ + An option that delivers reward on typing the space key is added to the 2-D
+   Spatial Transformation calibration tool. (Thanks to crponce from the ML
+   forum)
+
+ - The fixation window sizes in the calibration tools are fixed to be radii
+   correctly. The sizes of all circle objects in NIMH ML2 are represented in
+   radius.
+
+ - A problem that movie objects couldn't be turned off when they ended before
+   the duration of idle() or eyejoytrack() is fixed.
+
+
+* Changes in NIMH MonkeyLogic 2 (Apr 5, 2017)
+
+ + Added the following new fields to Screen and TrialRecord to improve the
+   compatibility with old timing scripts.
+
+   Screen.BackgroundColor
+   Screen.PixelsPerDegree
+   TrialRecord.DataFile
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 31, 2017)
+
+ + Now pre-loading stimuli and timing files is possible when running the task
+   with a userloop file so that the required ITI can be minimized
+   (See the included example task, movie preloading. Thanks to mkytch from the
+   ML forum)
+
+ - Fixed the problem with "Chart Blocks" that occurs when multiple block
+   numbers are given in one condition line. (Thanks to mkytch from the ML
+   forum)
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 28, 2017)
+
+ + Changed the name convention of the cfg file from '*_cfg.mat' to '*_cfg2.mat'
+   so that the old cfg files are not overwritten. The old cfg files are not
+   compatible with NIMH ML 2.
+
+ - Fixed the problem that the location of the user plot was incorrect in old
+   MATLAB versions.
+
+ - Fixed the problem that the background color of the subject screen does not
+   change during the idle command, when there is no object to update. (Thanks
+   to Xiaomin Yue)
+
+ - Fixed an error made in the previous version that prevented editable
+   variables from loading
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 27, 2017)
+
+ + Now the behavior summary is shown at the end of tasks, as in the previous
+   versions.
+
+ - An error made in the previous version that disables Stimulation and Mouse
+   is fixed.
+
+ - The timing accuracy of goodmonkey (reward on/off time and eventmarker) is
+   improved.
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 24, 2017)
+
+ - Fixed an error in assigning strings that contain commas and semi-colons to
+   editable variables.
+
+ - Fixed the problem that the simulation mode did not work with Stimulation
+   and TTL.
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 22, 2017)
+
+ - Fixed the problem that TrialRecord.CurrentConditionStimulusInfo does not
+   reflect the taskobject info correctly. (Thanks to crponce from the ML forum)
+
+ - Fixed the problem that the x & y positions of gen objects defined in the
+   conditions file are provided as char, not numeric. (Thanks to neo3dot1415
+   and crponce from the ML forum)
+
+ - Fixed the problem that the intertrial-interval is not counted for the
+   duration specified by set_iti().
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 20, 2017)
+
+ + Due to the just-in-time compilation of MATLAB, the timestamps of eventmarker
+   were off by a few milliseconds from the actual flip times of toggleobject
+   for the first few trials, until all the codes were compiled and cached. Now
+   stimulus presentation (Stimulations, TTLs, and audio sounds) and timestamp-
+   marking are processed at the DLL level without going through MATLAB scripts
+   so that there is no such delay any longer.
+
+ - An error made in the previous release is fixed. It prevented the changes of
+   timing files from being applied immediately.
+
+
+* Changes in NIMH MonkeyLogic 2 (Mar 17, 2017)
+
+ + Improved support for the userloop function (see the 'dms with userloop'
+   example in the task directory for further details)
+
+ + Made the sizes of all circle-shaped objects represented in radius
+   irrespective of their units. This makes the fixation point and the
+   eye/joystick/touch tracers almost twice bigger when you change their shape
+   from Square to Circle without adjusting their sizes. However, it is
+   consistent with the fact that the CRC objects in the conditions file and the
+   window threshold of eyejoytrack() are also in radius and therefore less
+   confusing.

@@ -1,0 +1,16 @@
+<ViewPoint>
+	<x64>
+		<Client>ViewPointClient_64.exe</Client>
+		<DLL>
+			<Item>opencv_world310.dll</Item>
+			<Item>VPX_InterApp_64.dll</Item>
+		</DLL>
+	</x64>
+	<x86>
+		<Client>ViewPointClient_32.exe</Client>
+		<DLL>
+			<Item>opencv_world300.dll</Item>
+			<Item>VPX_InterApp_32.dll</Item>
+		</DLL>
+	</x86>
+</ViewPoint>

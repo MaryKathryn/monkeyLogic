@@ -1,0 +1,111 @@
+Changes in NIMH daqtoolbox, May 4, 2017
+
+ ~ The register method can handle multiple objects.
+
+Changes in NIMH daqtoolbox, Mar 20, 2017
+
+ ~ The binary is combined with MGL
+
+Changes in NIMH daqtoolbox, Feb 17, 2017
+
+ ~ The imperfect previous patch for the pointingdevice problem was updated.
+
+Changes in NIMH daqtoolbox, Jan 30, 2017
+
+ ~ A problem that pointingdevice sometimes returns garbage values in slow
+  systems is fixed.
+ ~ DaqAdaptorManager and parallel port devices are now destructed correctly.
+
+Changes in NIMH daqtoolbox, Jan 17, 2017
+
+ + Multiport digitalio is not double counted any more.
+
+Changes in NIMH daqtoolbox, Jan 3, 2017
+
+ + Bug fixes in the previous patch.
+
+Changes in NIMH daqtoolbox, Dec 21, 2016
+
+ + A thread safety problem during continuous AnalogInput acquisition is fixed.
+
+Changes in NIMH daqtoolbox, Dec 13, 2016
+
+ + The in/out direction of digital lines is now handled properly.
+
+Changes in NIMH daqtoolbox, Dec 9, 2016
+
+ + digitalio can do continuous sampling up to 1 kHz based on the system clock.
+
+Changes in NIMH daqtoolbox, Nov 19, 2016
+
+ + a minor change in an undocumented function.
+
+Changes in NIMH daqtoolbox, Oct 31, 2016
+
+ + The way of counting the total number of acquired samples is now thread-safe.
+
+Changes in NIMH daqtoolbox, Oct 21, 2016
+
+ ~ The data type for pointingdevice changed to signed integers to represent
+  negative numbers.
+
+Changes in NIMH daqtoolbox, Sep 9, 2016
+
+ + dec2binvec became vectorized and faster.
+
+Changes in NIMH daqtoolbox, Aug 9, 2016
+
+ ~ removed the error dialog popping up when NI-DAQmx is not found
+ ~ fixed a bug in detecting analogoutput voltage ranges that occurred
+  when the NI device supports multiple ranges (thanks to Helen Schwerdt)
+
+Changes in NIMH daqtoolbox, Aug 2, 2016
+
+ + Device '0' becomes a default device when the device id can be a number.
+
+Changes in NIMH daqtoolbox, Jul 1, 2016
+
+ + separated the NI-DAQmx module from the others so that the toolbox can run
+  without NI boards 
+
+Changes in NIMH daqtoolbox, Jun 3, 2016
+
+ + support for USB joystick
+ + improved support for pointing devices
+ 
+Changes in NIMH daqtoolbox, May 19, 2016
+
+ ~ fixed a bug in detecting analogoutput
+
+Changes in NIMH daqtoolbox, Apr 7, 2016
+
+ + support for pointing devices (mouse, touchscreen, etc.)
+
+Changes in NIMH daqtoolbox, Mar 16, 2016
+
+ ~ fixed a compatibility issue with old NI-DAQmx versions
+
+Changes in NIMH daqtoolbox, Mar 11, 2016
+
+ ~ fixed a compatibility issue with Windows 10
+ + switch to Visual Studio 2013 for backward compatibility with old MATLAB
+  versions
+
+Changes in NIMH daqtoolbox, Feb 11, 2016
+
+ ~ fixed bugs with some NI hardware
+
+Changes in NIMH daqtoolbox, Feb 8, 2016
+
+ + winsound support
+ + better detection of NI products
+
+Changes in NIMH daqtoolbox, Dec 30, 2015
+
+ + parallel port support (read from/write to data port)
+
+Changes in NIMH daqtoolbox, Dec 23, 2015
+
+ + trigger support for analoginput ('Immediate', 'Manual', 'Software')
+ + trigger support for analogoutput ('Immediate', 'Manual')
+ 

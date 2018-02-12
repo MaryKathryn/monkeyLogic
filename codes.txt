@@ -1,0 +1,5 @@
+Code	Description
+9		Start trial
+13		Frame skipped
+14		Manual reward
+18		End trial
