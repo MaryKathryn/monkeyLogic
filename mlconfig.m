@@ -1,3 +1,16 @@
+%%=========================================================================
+% Change log JMT LAB ======================================================
+%==========================================================================
+% December 1st 2017: GD
+%   Added the TCP transient property that will hold the python tunnel
+%   object to interface with Unreal Engine
+%
+%   Added the mltcp creator function in the mlconfig constructor function
+%
+%   Added delete function for TCP object
+%==========================================================================
+%==========================================================================
+%==========================================================================
 classdef (ConstructOnLoad = true) mlconfig
     properties  % variables related to UI
         SubjectScreenDevice
@@ -80,11 +93,12 @@ classdef (ConstructOnLoad = true) mlconfig
         Screen
         System
         IOList
+        TCP %Dec_1_2017: TCP connection with the Unreal Engine 
     end
     properties (Constant = true, Hidden = true)
         Ver = 1.0;
         DependentFields = {'Resolution','PixelsPerDegree','FormattedName'}
-        TransientFields = {'MLVersion','MLPath','MLConditions','DAQ','Screen','System','IOList'}
+        TransientFields = {'MLVersion','MLPath','MLConditions','DAQ','Screen','System','IOList', 'TCP'}
         DefaultNumberOfTrialsToRunInThisBlock = 1000;
         DefaultCountOnlyCorrectTrials = true;
     end
@@ -194,6 +208,8 @@ classdef (ConstructOnLoad = true) mlconfig
             obj.DAQ = mldaq;
             obj.Screen = mlscreen;
             obj.System = mlsystem;
+            
+            obj.TCP = mltcp; %Dec_1_2017: TCP object creator
         end
         function export_to_file(obj,filename,varname)
             if ~exist('varname','var'), varname = 'MLConfig'; end
@@ -238,6 +254,7 @@ classdef (ConstructOnLoad = true) mlconfig
         function delete(obj)
             delete(obj.DAQ);
             delete(obj.Screen);
+            delete(obj.TCP); %Dec_1_2017: delete TCP object and close socket
         end
         
         function tf = isequal(obj,val)
