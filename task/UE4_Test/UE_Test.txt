@@ -1,0 +1,13 @@
+Condition	Frequency	Block	Timing File	TaskObject#1	TaskObject#2	TaskObject#3	TaskObject#4	
+1		1		1 	UE_Test		ctx(1)		gol(3,R)	gol(1,B)	
+2		1		1 	UE_Test		ctx(1)		gol(1,B)	gol(3,R)			
+3		1		1 	UE_Test		ctx(1)		gol(2,G)	gol(1,B)			
+4		1		1 	UE_Test		ctx(1)		gol(1,B)	gol(2,G)			
+5		1		1 	UE_Test		ctx(1)		gol(3,R)	gol(2,G)			
+6		1		1 	UE_Test		ctx(1)		gol(2,G)	gol(3,R)			
+7		1		1 	UE_Test		ctx(2)		gol(3,B)	gol(1,R)	
+8		1		1 	UE_Test		ctx(2)		gol(1,R)	gol(3,B)			
+9		1		1 	UE_Test		ctx(2)		gol(2,G)	gol(1,R)			
+10		1		1 	UE_Test		ctx(2)		gol(1,R)	gol(2,G)			
+11		1		1 	UE_Test		ctx(2)		gol(3,B)	gol(2,G)			
+12		1		1 	UE_Test		ctx(2)		gol(2,G)	gol(3,B)			
