@@ -3,12 +3,30 @@ function varargout = run_trial(MLConfig,datafile)
 %   Jan 12, 2017    This file is renamed from 'monkeylogic.m' to 'run_trial.m'
 %                   and completely re-written by Jaewon Hwang
 
+%%=========================================================================
+% Change log JMT LAB ======================================================
+%==========================================================================
+% December 4 2017: GD
+%   Added implementation of the TCP object
+%
+% December 6 2017: GD
+%   Added the ONBLACK command when in the pause_menu for UE tasks
+%==========================================================================
+%==========================================================================
+%==========================================================================
+
+
 varargout = cell(1);  % default output
 
 MLPath = MLConfig.MLPath;
 MLConditions = MLConfig.MLConditions;
 DAQ = MLConfig.DAQ;
 Screen = MLConfig.Screen;
+TCP = MLConfig.TCP; 
+
+% Structure containing the info ACROSS trials (e.g. trial number);
+% individual trials are saved in trialdata
+% this struct has not been modified, should work as-is
 
 TrialRecord = mltrialrecord(MLConfig);
 if isempty(MLConfig.UserPlotFunction), TrialRecord.TaskInfo.UserPlotFunction = ''; else TrialRecord.TaskInfo.UserPlotFunction = fileread(MLConfig.UserPlotFunction); end
@@ -43,7 +61,7 @@ uiPerformanceThisCond = zeros(10,1);
 exception1 = [];
 exception2 = [];
 try
-    init();
+    init(); %initialize GUI
     create_tracers(Screen,MLConfig);
 
     % need to embed timining files before calling pause_menu() to make [v] work
@@ -60,10 +78,10 @@ try
     editable = whos('-file',MLPath.ConfigurationFile,editable_by_subject);
     if ~isempty(editable), editable = load(MLPath.ConfigurationFile,editable_by_subject); MLEditable = editable.(editable_by_subject); end
     TrialRecord.set_editable(MLEditable);
-
+     %If paused or quit
     if TrialRecord.Pause, pause_menu(); varargout{1} = MLConfig; end
     if TrialRecord.Quit || ~looping, if ishandle(hFig), close(hFig); end, return, end
-
+   
     if TrialRecord.TestTrial
         TaskObject = mltaskobject(taskobject,MLConfig);
         TrialData = mltrialdata;
@@ -77,9 +95,21 @@ try
     MLConfig.export_to_file(datafile);
     if alert, alertfunc('task_start',MLConfig,TrialRecord); end
     TrialRecord.TaskInfo.StartTime = now;
-
+    
+    %Trials Loop
     for trial=1:MLConfig.TotalNumberOfTrialsToRun
         if ~TrialRecord.SimulationMode && MLConfig.Touchscreen && 1<mglgetadaptercount, mglsetcursorpos(1); else mglsetcursorpos(-1); end
+         %TrialRecord.new_trial(); seems to be where the current trial gets
+        %initialized (i.e. conditions selection) 
+        %TrialRecord is an instance of the mltrialrecord class. Open to see
+        %new_trial() function; 
+        
+        %taskobject : from the condition selected in
+        %TrialRecord.new_trial() gets the proper items from the config
+        %file?
+        
+        %runtime_handle holds the "TimingFile" function handles defined in
+        %the configuration file. 
         
         if isuserloopfile(MLConditions)
             [taskobject,timingfile,trialholder] = userloop_handle(MLConfig,TrialRecord);  % keep in mind that the userloop function is called before the trial number counts up 
@@ -92,6 +122,7 @@ try
             taskobject = MLConditions.Conditions(TrialRecord.CurrentCondition).TaskObject;
             runtime = runtime_handle{MLConditions.UIVars.TimingFilesNo(TrialRecord.CurrentCondition)};
         end
+         %creates TaskObjects from conditions// modified to add UE objects
         TaskObject = mltaskobject(taskobject,MLConfig,TrialRecord);
 
         TrialData = mltrialdata;
@@ -107,6 +138,10 @@ try
             alertfunc('trial_start',MLConfig,TrialRecord);
         end
         pretrial_uiupdate();
+        
+        %This executes the Timing file from the current task which is
+        %created by embedding the timing file into trialholder_v2.m and
+        %saved in a temp folder. 
 
         runtime(MLConfig,TrialRecord,TaskObject,TrialData);
 
@@ -300,6 +335,12 @@ if ~isempty(exception2), rethrow(exception2); end
     end
 
     function pause_menu()
+    %Puts the player OnBlack during pause screen ======================
+        if TCP.TCP_Status
+            TCP.OnBlack();
+        end
+        %==================================================================
+
         if 0~=TrialRecord.CurrentTrialNumber
             set(hFig,'name',sprintf('[%s: %s]  Start: %s  End: %s  (Elapsed: %s)',condname,MLConfig.SubjectName,datestr(TrialRecord.TaskInfo.StartTime,'yyyy-mm-dd HH:MM:SS'), ...
                 datestr(TrialRecord.TaskInfo.EndTime,'yyyy-mm-dd HH:MM:SS'),datestr(TrialRecord.TaskInfo.EndTime-TrialRecord.TaskInfo.StartTime,'HH:MM:SS')));

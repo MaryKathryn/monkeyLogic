@@ -1,3 +1,4 @@
+%% Added UEData in the properties to save UE Data / GD Dec 12 2017
 classdef mltrialdata < handle
     properties
         Trial
@@ -10,6 +11,7 @@ classdef mltrialdata < handle
         TrialDateTime
         BehavioralCodes
         AnalogData
+        UEData %Added by GD
         ObjectStatusRecord
         RewardRecord
         UserVars

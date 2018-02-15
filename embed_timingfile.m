@@ -20,7 +20,7 @@ if verLessThan('matlab','9.1')
     end
 end
 timing_code = regexp(tree2str(mtree(timing_code)),'[^\n]+\n|[^\n]+$','match')';
-timing_trimmed = strtrim(timing_code);
+timing_trimmed = strtrim(timing_code);%Holds the code for the timing file
 
 % abort_trial or return
 timing_code(strncmp(timing_trimmed,'abort_trial',11)|strncmp(timing_trimmed,'return',6)) = {'end_trial; return'};
@@ -86,7 +86,7 @@ timing_code = regexprep(timing_code,'(.*)',['$1' char(10)]);
 
 % read trialholder
 if ~exist('trialholder','var') || 2~=exist(trialholder,'file')
-    if any(~cellfun(@isempty,regexp(timing_trimmed,'toggleobject'))) || any(~cellfun(@isempty,regexp(timing_trimmed,'eyejoytrack')))
+    if any(~cellfun(@isempty,regexp(timing_trimmed,'toggleobject'))) || any(~cellfun(@isempty,regexp(timing_trimmed,'eyejoytrack')))  %checks for runtime_v1 specific objects?
         trialholder = [MLConfig.MLPath.BaseDirectory 'trialholder_v1.m'];
         
         % Note that this part can be called every trial, if the userloop returns the trialholder filename.
