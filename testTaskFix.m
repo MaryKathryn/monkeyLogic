@@ -1,16 +1,16 @@
-%testTask conditions file 
+%testTask timing file 
 
 fixation_point_1 = 1;
 %fixation_point_2 = 2;
 
 fix_radius = 8;
-saccade_time = 1000000000000;
+saccade_time = 1000000000;
 
 toggleobject(fixation_point_1, 'eventmarker', 10, 'status','on');
 
 showcursor(1) 
 
-ontarget = eyejoytrack('acquirefix', [fixation_point_1], fix_radius, saccade_time); %******will probably need to increase 
+ontarget = eyejoytrack('acquirefix', [fixation_point_1], fix_radius, saccade_time); %******will probably need to increase time 
 if ~ontarget,
     trialerror(2); % no or late response (did not land on either the target or distractor)
     toggleobject([fixation_point_1])
