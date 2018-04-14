@@ -1,3 +1,0 @@
-Condition	Frequency	Block	Timing File	TaskObject#1	TaskObject#2	
-1	1	1	testTaskFix	fix(10,0)	fix(10,0)
-2	1	1	testTaskFix	fix(10,0)	fix(10,0)
