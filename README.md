@@ -1,2 +1,3 @@
 # frankenVersion
-attempt to reconcile updated ML wth the TCP capable version
+Kathryn McIntosh 2018
+Combined original monkeylogic code with TCP functionality for working with virtual reality and added dataparsing functionality for analyzing xmaze data with MATLAB. 
